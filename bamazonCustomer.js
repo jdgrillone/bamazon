@@ -41,14 +41,39 @@ function start() {
             for (var i = 0; i < results.length; i++) {
                 if (results[i].item_id === parseInt(answer.choice)) {
                     chosenItem = results[i];
-                    console.log(chosenItem.product_name);
+                    console.log("B");
                 }
+            }
+            if (chosenItem.stock_quantity > parseInt(answer.amount)){
+                console.log("C");
+                var stock = chosenItem.stock_quantity;
+                connection.query(
+                    "UPDATE products SET ? WHERE ?",
+                    [
+                        {
+                            stock_quantity: (stock - answer.amount)
+                        },
+                        {
+                            item_id: chosenItem.item_id
+                        }
+                    ],
+                    function(error) {
+                        if (error) throw error;
+                        var total = (chosenItem.price*answer.amount);
+                        console.log("Thank you for your purchase!");
+                        console.log("Your total is $" + total);
+                        start();
+                    }
+                )
+            }else if (chosenItem.stock_quantity < parseInt(answer.amount)){
+                console.log("Insufficient quantity!");
+                start();
             }
             if (chosenItem === undefined) {
                 console.log("Invalid Input. Try Again.");
                 start();
             }
-        
+
         });
-});
+    });
 }
